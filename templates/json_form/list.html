@@ -1,0 +1,10 @@
+<table>
+<tr><th>Name</th><th>Description</th><th></th></tr>
+{% for form in forms %}
+<tr>
+<td>{{form.name}}</td>
+<td>{{form.description}}</td>
+<td><a href="{% url 'form' pk=form.pk %}">Test form</a></td>
+</tr>
+{% endfor %}
+</table>

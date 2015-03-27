@@ -1,0 +1,16 @@
+<form action="." method="POST">
+{% csrf_token %}
+<textarea name="fields">{{fields}}</textarea>
+<button>Generate Form</button>
+</form>
+
+<h1>{{message}}</h1>
+<form action="." method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<table>
+{{json_form.as_table}}
+</table>
+<input type="hidden" name="submitted" value="1"/>
+<input type="hidden" name="fields" value="{{fields}}"/>
+<button>Submit</button>
+</form>

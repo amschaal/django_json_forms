@@ -1,0 +1,8 @@
+<h1>{{message}}</h1>
+<form action="." method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<table>
+{{form.as_table}}
+</table>
+<button>Submit</button>
+</form>
