@@ -1,0 +1,9 @@
+
+<table>
+{% for response in responses %}
+<tr>
+<td>{{response.timestamp}}</td>
+<td><a href="{% url 'response' pk=response.pk %}">View</a></td>
+</tr>
+{% endfor %}
+</table>

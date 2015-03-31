@@ -1,5 +1,34 @@
 from django import forms
+# from django.conf import settings
 import json
+
+# class JSONFileField(forms.FileField):
+# 
+#     def clean(self, *args, **kwargs):
+#         super(JSONFileField, self).clean(*args, **kwargs)
+#         tmp_file = args[0]
+# 
+# #         if tmp_file.size > 6600000:
+# #             raise forms.ValidationError("File is too large.")
+# 
+#         file_path = getattr(settings,'FILE_UPLOAD_TEMP_DIR')+'/'+tmp_file.name
+# 
+#         destination = open(file_path, 'wb+')
+#         for chunk in tmp_file.chunks():
+#             destination.write(chunk)
+#         destination.close()
+# 
+#         try:
+#             audio = MP3(file_path)
+#             if audio.info.length > 300:
+#                 os.remove(file_path)
+#                 raise forms.ValidationError("MP3 is too long.")
+# 
+#         except (HeaderNotFoundError, InvalidMPEGHeader):
+#             os.remove(file_path)
+#             raise forms.ValidationError("File is not valid MP3 CBR/VBR format.")
+#         os.remove(file_path)
+#         return args
 
 class JSONForm(forms.Form):
     def __init__(self,*args,**kwargs):

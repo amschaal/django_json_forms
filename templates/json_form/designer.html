@@ -1,0 +1,41 @@
+{% load staticfiles %}
+<!doctype html>
+<html ng-app="DesignerApp">
+  <head>
+    <title>My Angular App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.js"></script>
+    <script src="{% static 'scripts/designer.js' %}"></script>
+    
+  </head>
+  <body>
+	<div ng-controller="DesignerController">
+		<table>
+		<tr><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Options</th></tr>
+		<tr ng-repeat="field in fields">
+			<td><input type="checkbox" ng-model="field.required"></td>
+			<td><select ng-model="field.type" ng-options="type for type in field_types"></select></td>
+			<td><input ng-model="field.name"/></td>
+			<td><input ng-model="field.label"/></td>
+			<td>
+				<div ng-if="['select','radio'].indexOf(field.type) != -1">
+					<p><b>Choices:</b></p>
+					<div ng-repeat="choice in field.choices">
+						<input ng-model="choice.name" placeholder="name">
+						<input ng-model="choice.value" placeholder="value">
+					</div>
+					<button ng-click="addOption(field);">Add option</button>
+				</div>
+			</td>
+		</tr>
+		</table>
+		<button ng-click="addField()">Add Field</button> <button ng-click="test()">Test</button>
+		
+		
+		<form target="_blank" action="{% url 'test_json_form' %}" method="POST">
+			{% csrf_token %}
+			<textarea name="fields">{[fields | json]}</textarea>
+			<button>Test</button>
+		</form>
+	</div>
+  </body>
+</html>
