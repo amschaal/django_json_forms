@@ -1,6 +1,10 @@
 from django import forms
+from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 # from django.conf import settings
 import json
+from django_json_form.models import JSONFormModel
+from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 
 # class JSONFileField(forms.FileField):
 # 
@@ -30,17 +34,59 @@ import json
 #         os.remove(file_path)
 #         return args
 
+class JSONModelForm(forms.Form):
+    def __init__(self,*args,**kwargs):
+        fields = kwargs.pop('fields','[]')
+        super(JSONModelForm, self).__init__(*args, **kwargs)
+        fh = FieldHandler(fields)
+        self.fields = fh.formfields
+    def clean(self):
+        super(JSONModelForm,self).clean()
+        if self.is_valid() and not hasattr(self, 'cleaned_data_with_files'):
+            self.cleaned_data_with_files = self.cleaned_data.copy()
+            for key, value in self.cleaned_data.iteritems():
+                if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
+                    print key
+                    file_path = '/tmp'+'/'+value.name
+                    destination = open(file_path, 'wb+')
+                    for chunk in value.chunks():
+                        destination.write(chunk)
+                    destination.close()
+                    self.cleaned_data_with_files[key]= file_path
+            
+    def get_data(self, commit=True):
+        if not self.is_valid():
+            return None
+#         print self.cleaned_data
+        self.cleaned_data_with_files = self.cleaned_data.copy()
+        for key, value in self.cleaned_data.iteritems():
+            if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
+                print key
+                file_path = '/tmp'+'/'+value.name
+                destination = open(file_path, 'wb+')
+                for chunk in value.chunks():
+                    destination.write(chunk)
+                destination.close()
+
 class JSONForm(forms.Form):
     def __init__(self,*args,**kwargs):
         fields = json.loads(kwargs.pop('fields','[]'))
         super(JSONForm, self).__init__(*args, **kwargs)
         fh = FieldHandler(fields)
         self.fields = fh.formfields
-        print self.fields
         
+class JSONFormModel_Form(forms.ModelForm):
+    def __init__(self,*args,**kwargs):
+        super(JSONFormModel_Form, self).__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['fields'].help_text = format_html('<h3>Use <a href="%s">Designer</a></h3>'%reverse('form_designer',kwargs={"pk":self.instance.id}))
+    class Meta:
+        model=JSONFormModel
+        fields = ('name','description','fields')
+
 class FieldHandler():
-    formfields = {}
     def __init__(self, fields):
+        self.formfields = {}
         for field in fields:
             options = self.get_options(field)
             f = getattr(self, "create_field_for_"+field['type'] )(field, options)
@@ -58,9 +104,7 @@ class FieldHandler():
         return forms.CharField(**options)
     
     def create_field_for_file(self, field, options):
-#         options['max_length'] = int(field.get("max_length", "20") )
-        return forms.FileField()
-        return forms.CharField(**options)
+        return forms.FileField(**options)
     
     def create_field_for_textarea(self, field, options):
         options['max_length'] = int(field.get("max_value", "9999") )

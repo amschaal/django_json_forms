@@ -1,3 +1,14 @@
+{% extends 'admin/base.html'%}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+     &rsaquo; <a href="{% url 'admin:django_json_form_jsonformmodel_changelist' %}">Forms</a>
+     &rsaquo; <a href="{% url 'admin:django_json_form_jsonformmodel_change' response.form_id %}">{{response.form}}</a>
+     &rsaquo; Response
+     &rsaquo; {{response.timestamp}}
+    </div>
+{% endblock %}
+{% block content %}
 <table>
 {% for key,value in response.get_label_values.items %}
 <tr>
@@ -6,3 +17,4 @@
 </tr>
 {% endfor %}
 </table>
+{% endblock %}

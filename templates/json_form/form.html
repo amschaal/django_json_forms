@@ -1,3 +1,12 @@
+{% extends 'admin/base.html'%}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+     &rsaquo; <a href="{% url 'forms' %}">Forms</a>
+     &rsaquo; {{json_form}}
+    </div>
+{% endblock %}
+{% block content %}
 <h1>{{message}}</h1>
 <form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
@@ -6,3 +15,4 @@
 </table>
 <button>Submit</button>
 </form>
+{% endblock %}
