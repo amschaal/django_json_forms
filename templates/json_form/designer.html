@@ -26,12 +26,13 @@
 	<div ng-app="DesignerApp" ng-controller="DesignerController" ng-init='initialize({{init|safe}})'>
 	<h3>Form Fields</h3>
 		<table>
-		<tr><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Options</th><th></th></tr>
+		<tr><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Help Text</th><th>Options</th><th></th></tr>
 		<tr ng-repeat="field in fields">
 			<td><input type="checkbox" ng-model="field.required" ></td> <!-- ng-true-value="1" -->
 			<td><select ng-model="field.type" ng-options="type for type in field_types"></select></td>
 			<td><input ng-model="field.name"/></td>
 			<td><input ng-model="field.label"/></td>
+			<td><textarea ng-model="field.help_text"></textarea></td>
 			<td>
 				<div ng-if="['select','radio'].indexOf(field.type) != -1">
 					<p><b>Choices:</b></p>

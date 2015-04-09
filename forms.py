@@ -79,7 +79,8 @@ class JSONFormModel_Form(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(JSONFormModel_Form, self).__init__(*args, **kwargs)
         if self.instance:
-            self.fields['fields'].help_text = format_html('<h3>Use <a href="%s">Designer</a></h3>'%reverse('form_designer',kwargs={"pk":self.instance.id}))
+            if self.instance.id:
+                self.fields['fields'].help_text = format_html('<h3>Use <a href="%s">Designer</a></h3>'%reverse('form_designer',kwargs={"pk":self.instance.id}))
     class Meta:
         model=JSONFormModel
         fields = ('name','description','fields')

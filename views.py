@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from forms import JSONForm
 from models import JSONFormModel, Response as JSONFormResponse
 import json
+from django.contrib.auth.decorators import user_passes_test
+from decorators import download_permission
 
 def test(request):
     json_form = None
@@ -60,6 +62,7 @@ def form(request,pk):
             message = 'Validation error'
     else:
         form = json_form.get_form()
+    return render(request, 'json_form/form.html', {'message':message,'form':form},context_instance=RequestContext(request))
 
 def update_form_fields(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
@@ -67,3 +70,14 @@ def update_form_fields(request,pk):
     json_form.fields = data['fields']
     json_form.save()
     return HttpResponse({'status':'success'}, content_type='application/json')
+
+@download_permission()
+def download_response_file(request,pk):
+    from sendfile import sendfile
+    field_name = request.GET.get('field')
+    response = JSONFormResponse.objects.get(pk=pk)
+    field = response.field_hash[field_name]
+    if field.get('type') not in ['file']:
+        return HttpResponseForbidden('Not a valid file field')
+    path = response.data[field_name]
+    return sendfile(request, path)
