@@ -2,8 +2,8 @@
 {% block breadcrumbs %}
     <div class="breadcrumbs">
     <a href="{% url 'admin:index' %}">Home</a>
-     &rsaquo; <a href="{% url 'admin:django_json_form_jsonformmodel_changelist' %}">Forms</a>
-     &rsaquo; <a href="{% url 'admin:django_json_form_jsonformmodel_change' response.form_id %}">{{response.form}}</a>
+     &rsaquo; <a href="{% url 'admin:django_json_forms_jsonformmodel_changelist' %}">Forms</a>
+     &rsaquo; <a href="{% url 'admin:django_json_forms_jsonformmodel_change' response.form_id %}">{{response.form}}</a>
      &rsaquo; Response
      &rsaquo; {{response.timestamp}}
     </div>

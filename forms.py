@@ -2,11 +2,11 @@ from django import forms
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 # from django.conf import settings
 import json, os
-from django_json_form.models import JSONFormModel
+from django_json_forms.models import JSONFormModel
 from django.core.urlresolvers import reverse
 from django.utils.html import format_html
 from django.conf import settings
-UPLOAD_DIRECTORY = getattr(settings,'DJANGO_JSON_FORM_UPLOAD_DIRECTORY')
+UPLOAD_DIRECTORY = getattr(settings,'DJANGO_JSON_FORMS_UPLOAD_DIRECTORY')
 
 
 # class JSONFileField(forms.FileField):
