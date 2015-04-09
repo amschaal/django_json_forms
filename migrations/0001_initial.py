@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
                 ('description', models.TextField()),
-                ('fields', jsonfield.fields.JSONField()),
+                ('fields', jsonfield.fields.JSONField(null=True, blank=True)),
             ],
             options={
             },

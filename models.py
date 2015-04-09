@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 # from django import forms
 from jsonfield import JSONField
 from django.utils.html import format_html
-
+import os
 
 
 class JSONFormModel(models.Model):
@@ -30,7 +30,8 @@ class Response(models.Model):
         for field in self.fields:
             field['label'] = self.get_label(field)
             field['value'] = self.get_value(field)
-            field['pretty_value'] = self.get_pretty_value(field)
+            if self.id:
+                field['pretty_value'] = self.get_pretty_value(field)
 #     def field_iterator(self):
 #         fields = self.fields.copy()
 #         for field in fields:
@@ -48,7 +49,8 @@ class Response(models.Model):
     def get_pretty_value(self,field):
         value = self.get_value(field)
         if field.get('type') in ['file']:
-            return format_html('<a href="%s">%s</a>' % (reverse('download_response_file',kwargs={'pk':self.id})+'?field='+field['name'],value))
+            os.path.basename(value)
+            return format_html('<a href="%s">%s</a>' % (reverse('download_response_file',kwargs={'pk':self.id})+'?field='+field['name'],os.path.basename(value)))
         return value
     def get_value(self,field):
         return self.data[field['name']]

@@ -1,10 +1,13 @@
 from django import forms
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 # from django.conf import settings
-import json
+import json, os
 from django_json_form.models import JSONFormModel
 from django.core.urlresolvers import reverse
 from django.utils.html import format_html
+from django.conf import settings
+UPLOAD_DIRECTORY = getattr(settings,'DJANGO_JSON_FORM_UPLOAD_DIRECTORY')
+
 
 # class JSONFileField(forms.FileField):
 # 
@@ -47,7 +50,7 @@ class JSONModelForm(forms.Form):
             for key, value in self.cleaned_data.iteritems():
                 if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
                     print key
-                    file_path = '/tmp'+'/'+value.name
+                    file_path = os.path.join(UPLOAD_DIRECTORY, value.name)
                     destination = open(file_path, 'wb+')
                     for chunk in value.chunks():
                         destination.write(chunk)
