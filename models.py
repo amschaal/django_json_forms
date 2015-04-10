@@ -49,8 +49,11 @@ class Response(models.Model):
     def get_pretty_value(self,field):
         value = self.get_value(field)
         if field.get('type') in ['file']:
-            os.path.basename(value)
-            return format_html('<a href="%s">%s</a>' % (reverse('download_response_file',kwargs={'pk':self.id})+'?field='+field['name'],os.path.basename(value)))
+            try:
+                value = os.path.basename(value)
+            except:
+                return value
+            return format_html('<a href="%s">%s</a>' % (reverse('download_response_file',kwargs={'pk':self.id})+'?field='+field['name'],value))
         return value
     def get_value(self,field):
         return self.data[field['name']]

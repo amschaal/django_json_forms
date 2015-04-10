@@ -54,7 +54,6 @@ def form(request,pk):
         form = json_form.get_form(request.POST,request.FILES)
         if form.is_valid():
             response = JSONFormResponse.objects.create(form=json_form,fields=json_form.fields,data=form.cleaned_data_with_files)
-            print 'get data'
             print form.cleaned_data_with_files
             message = response.data
             return redirect('response',pk=response.id)
@@ -62,7 +61,7 @@ def form(request,pk):
             message = 'Validation error'
     else:
         form = json_form.get_form()
-    return render(request, 'json_form/form.html', {'message':message,'form':form},context_instance=RequestContext(request))
+    return render(request, 'json_form/form.html', {'message':message,'form':form,'json_form':json_form},context_instance=RequestContext(request))
 
 def update_form_fields(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
