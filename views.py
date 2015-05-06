@@ -6,7 +6,7 @@ from forms import JSONForm
 from models import JSONFormModel, Response as JSONFormResponse
 import json
 from django.contrib.auth.decorators import user_passes_test
-from decorators import download_permission
+from decorators import download_permission, form_permission
 
 def test(request):
     json_form = None
@@ -29,6 +29,7 @@ def designer(request):
 #     forms = JSONFormModel.objects.all()
     return render(request, 'json_form/designer.html', {},context_instance=RequestContext(request))
 
+@form_permission()
 def form_designer(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
     print json_form.fields
@@ -39,6 +40,7 @@ def forms(request):
     forms = JSONFormModel.objects.all()
     return render(request, 'json_form/list.html', {'forms':forms},context_instance=RequestContext(request))
 
+@form_permission()
 def responses(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
     return render(request, 'json_form/responses.html', {'responses':json_form.responses.all(),'json_form':json_form},context_instance=RequestContext(request))
@@ -47,6 +49,7 @@ def response(request,pk):
     response = JSONFormResponse.objects.get(pk=pk)
     return render(request, 'json_form/response.html', {'response':response},context_instance=RequestContext(request))
 
+@form_permission()
 def form(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
     message = ''
@@ -63,12 +66,13 @@ def form(request,pk):
         form = json_form.get_form()
     return render(request, 'json_form/form.html', {'message':message,'form':form,'json_form':json_form},context_instance=RequestContext(request))
 
+@form_permission()
 def update_form_fields(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
     data = json.loads(request.body)
     json_form.fields = data['fields']
     json_form.save()
-    return HttpResponse({'status':'success'}, content_type='application/json')
+    return HttpResponse(json.dumps({'status':'success'}), content_type='application/json')
 
 @download_permission()
 def download_response_file(request,pk):

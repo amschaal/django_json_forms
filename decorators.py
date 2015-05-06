@@ -1,4 +1,4 @@
-from models import Response
+from models import Response, JSONFormModel
 from django.http import HttpResponseForbidden 
 
 from django.conf import settings
@@ -11,7 +11,7 @@ def allow_all(user,response):
 class download_permission(object):
     def __init__(self, response_id_param='pk'):
         self.response_id_param  = response_id_param
-        perm_function_string = getattr(settings,'DJANGO_JSON_FORMS_DOWNLOAD_PERMISSIONS','django_json_forms.decorators.is_admin')
+        perm_function_string = getattr(settings,'DJANGO_JSON_FORMS_DOWNLOAD_PERMISSION','django_json_forms.decorators.is_admin')
         self.permission_function = import_string(perm_function_string)
     def __call__(self, f):
         def wrapped_f(*args,**kwargs):
@@ -20,6 +20,20 @@ class download_permission(object):
             response = Response.objects.get(id=kwargs[self.response_id_param])
             request = args[0]
             if not self.permission_function(request.user,response):
+                return HttpResponseForbidden('Permission denied')
+            return f(*args,**kwargs)
+        return wrapped_f
+    
+class form_permission(object):
+    def __init__(self, pk_param='pk'):
+        self.pk_param  = pk_param
+        perm_function_string = getattr(settings,'DJANGO_JSON_FORMS_PERMISSION','django_json_forms.decorators.is_admin')
+        self.permission_function = import_string(perm_function_string)
+    def __call__(self, f):
+        def wrapped_f(*args,**kwargs):
+            form = JSONFormModel.objects.get(id=kwargs[self.pk_param])
+            request = args[0]
+            if not self.permission_function(request.user,form):
                 return HttpResponseForbidden('Permission denied')
             return f(*args,**kwargs)
         return wrapped_f

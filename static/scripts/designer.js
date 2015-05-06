@@ -17,6 +17,8 @@ DesignerApp.controller('DesignerController', function($scope,$http) {
     $scope.save = function(){
     	console.log('posting: ',$scope.id, $scope.fields);
     	$http.post($scope.urls.update,{fields:$scope.fields})
+    	.success(function(){alert('The form has been updated.')})
+    	.error(function(){alert('There was an error updating the form.')});
     };
     $scope.addField = function(){
     	$scope.fields.push({});
