@@ -56,7 +56,7 @@ def form(request,pk):
     if request.method == 'POST':
         form = json_form.get_form(request.POST,request.FILES)
         if form.is_valid():
-            response = JSONFormResponse.objects.create(form=json_form,fields=json_form.fields,data=form.cleaned_data_with_files)
+            response = form.create_response()#JSONFormResponse.objects.create(form=json_form,data=form.cleaned_data_with_files)
             print form.cleaned_data_with_files
             message = response.data
             return redirect('response',pk=response.id)

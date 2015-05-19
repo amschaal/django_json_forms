@@ -2,74 +2,46 @@ from django import forms
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 # from django.conf import settings
 import json, os
+from datetime import datetime
 from django_json_forms.models import JSONFormModel
 from django.core.urlresolvers import reverse
 from django.utils.html import format_html
 from django.conf import settings
+from models import Response
 UPLOAD_DIRECTORY = getattr(settings,'DJANGO_JSON_FORMS_UPLOAD_DIRECTORY')
+GET_UPLOAD_PATH = getattr(settings,'DJANGO_JSON_FORMS_GET_UPLOAD_PATH',False)
+from django.utils.module_loading import import_string
 
-
-# class JSONFileField(forms.FileField):
-# 
-#     def clean(self, *args, **kwargs):
-#         super(JSONFileField, self).clean(*args, **kwargs)
-#         tmp_file = args[0]
-# 
-# #         if tmp_file.size > 6600000:
-# #             raise forms.ValidationError("File is too large.")
-# 
-#         file_path = getattr(settings,'FILE_UPLOAD_TEMP_DIR')+'/'+tmp_file.name
-# 
-#         destination = open(file_path, 'wb+')
-#         for chunk in tmp_file.chunks():
-#             destination.write(chunk)
-#         destination.close()
-# 
-#         try:
-#             audio = MP3(file_path)
-#             if audio.info.length > 300:
-#                 os.remove(file_path)
-#                 raise forms.ValidationError("MP3 is too long.")
-# 
-#         except (HeaderNotFoundError, InvalidMPEGHeader):
-#             os.remove(file_path)
-#             raise forms.ValidationError("File is not valid MP3 CBR/VBR format.")
-#         os.remove(file_path)
-#         return args
 
 class JSONModelForm(forms.Form):
     def __init__(self,*args,**kwargs):
-        fields = kwargs.pop('fields','[]')
+        self.json_form_model = kwargs.pop('JSONFormModel')
         super(JSONModelForm, self).__init__(*args, **kwargs)
-        fh = FieldHandler(fields)
+        fh = FieldHandler(self.json_form_model.fields)
         self.fields = fh.formfields
-    def clean(self):
-        super(JSONModelForm,self).clean()
-        if self.is_valid() and not hasattr(self, 'cleaned_data_with_files'):
-            self.cleaned_data_with_files = self.cleaned_data.copy()
-            for key, value in self.cleaned_data.iteritems():
-                if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
-                    print key
-                    file_path = os.path.join(UPLOAD_DIRECTORY, value.name)
-                    destination = open(file_path, 'wb+')
-                    for chunk in value.chunks():
-                        destination.write(chunk)
-                    destination.close()
-                    self.cleaned_data_with_files[key]= file_path
-            
-    def get_data(self, commit=True):
-        if not self.is_valid():
-            return None
-#         print self.cleaned_data
-        self.cleaned_data_with_files = self.cleaned_data.copy()
-        for key, value in self.cleaned_data.iteritems():
-            if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
-                print key
-                file_path = '/tmp'+'/'+value.name
-                destination = open(file_path, 'wb+')
-                for chunk in value.chunks():
-                    destination.write(chunk)
-                destination.close()
+    def create_response(self):
+        if self.is_valid():
+            if not hasattr(self, 'response'):
+                self.response = Response.objects.create(form=self.json_form_model,data={})
+                self.cleaned_data_with_files = self.cleaned_data.copy()
+                file_directory = os.path.join(UPLOAD_DIRECTORY,str(datetime.now().year),'%02d' % datetime.now().month,'%02d' % datetime.now().day, 'response_%d'%self.response.id)
+                os.makedirs(file_directory)
+                for key, value in self.cleaned_data.iteritems():
+                    if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
+                        file_path = os.path.join(file_directory,value.name)
+#                         if GET_UPLOAD_PATH:
+#                             get_upload_path = import_string(GET_UPLOAD_PATH)
+#                             file_path = get_upload_path(self,key,value)
+                        destination = open(file_path, 'wb+')
+                        for chunk in value.chunks():
+                            destination.write(chunk)
+                        destination.close()
+                        self.cleaned_data_with_files[key]= file_path
+                self.response.data = self.cleaned_data_with_files
+                self.response.save()
+                print 'response'
+                print self.response.data
+            return self.response
 
 class JSONForm(forms.Form):
     def __init__(self,*args,**kwargs):

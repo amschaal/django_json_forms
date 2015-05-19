@@ -15,7 +15,7 @@ class JSONFormModel(models.Model):
     def get_form(self,*args):
         from forms import JSONModelForm
         print self.fields
-        return JSONModelForm(*args,fields=self.fields)
+        return JSONModelForm(*args,JSONFormModel=self)
     
 class Response(models.Model):
     form = models.ForeignKey(JSONFormModel,related_name='responses')
@@ -24,14 +24,19 @@ class Response(models.Model):
     data = JSONField(null=False,blank=False)
     def __init__(self,*args,**kwargs):
         super(Response,self).__init__(*args,**kwargs)
-        self.field_hash={}
-        for field in self.fields:
-            self.field_hash[field['name']]=field
-        for field in self.fields:
-            field['label'] = self.get_label(field)
-            field['value'] = self.get_value(field)
-            if self.id:
-                field['pretty_value'] = self.get_pretty_value(field)
+        self.fields = self.form.fields
+        try:
+            self.field_hash={}
+            for field in self.fields:
+                self.field_hash[field['name']]=field
+            for field in self.fields:
+                field['label'] = self.get_label(field)
+                field['value'] = self.get_value(field)
+                if self.id:
+                    field['pretty_value'] = self.get_pretty_value(field)
+        except:
+            #@todo: stupid hack, fix this
+            print 'unable to generate labels and pretty values for response'
 #     def field_iterator(self):
 #         fields = self.fields.copy()
 #         for field in fields:
