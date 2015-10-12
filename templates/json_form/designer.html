@@ -13,8 +13,11 @@
 {% block content %}
   <head>
     <title>My Angular App</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.js"></script>
-    <script src="{% static 'scripts/designer.js' %}"></script>
+    <link rel="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css" type="stylesheet"/>
+    <script src="{% static 'django_json_forms/scripts/tinymce/tiny_mce.js' %}"></script>
+    <script src="{% static 'django_json_forms/scripts/angular.js' %}"></script>
+    <script src="{% static 'django_json_forms/scripts/angular.tinymce.js' %}"></script>
+    <script src="{% static 'django_json_forms/scripts/designer.js' %}"></script>
     <script>
     angular.module('DesignerApp').config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token|escapejs }}';
@@ -25,15 +28,16 @@
   	
 	<div ng-app="DesignerApp" ng-controller="DesignerController" ng-init='initialize({{init|safe}})'>
 	<h3>Form Fields</h3>
-		<table>
-		<tr><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Help Text</th><th>Options</th><th></th></tr>
+		<table style="width:100%">
+		<tr><th></th><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Help Text</th><th>Options</th><th></th></tr>
 		<tr ng-repeat="field in fields">
+			<td><button class="btn btn-xs" ng-click="move($index,1)">&#9660;</button> <button ng-click="move($index,-1)" class="btn btn-xs">&#9650;</button></td>
 			<td><input type="checkbox" ng-model="field.required" ></td> <!-- ng-true-value="1" -->
-			<td><select ng-model="field.type" ng-options="type for type in field_types"></select></td>
-			<td><input ng-model="field.name"/></td>
-			<td><input ng-model="field.label"/></td>
-			<td><textarea ng-model="field.help_text"></textarea></td>
-			<td>
+			<td><select ng-model="field.type" ng-options="field_type.type as field_type.label for field_type in field_types""></select></td>
+			<td ng-if="field.type != 'layout_html'"><input ng-model="field.name"/></td>
+			<td ng-if="field.type != 'layout_html'"><input ng-model="field.label"/></td>
+			<td ng-if="field.type != 'layout_html'"><textarea ng-model="field.help_text"></textarea></td>
+			<td ng-if="field.type != 'layout_html'">
 				<div ng-if="['select','radio'].indexOf(field.type) != -1">
 					<p><b>Choices:</b></p>
 					<div ng-repeat="choice in field.choices">
@@ -44,11 +48,15 @@
 					<button ng-click="addOption(field);">Add option</button>
 				</div>
 			</td>
+			<td colspan="4" ng-if="field.type == 'layout_html'">
+				<textarea style="width:100%;height:200px;" ui-tinymce ng-model="field.html"></textarea>
+			</td>
 			<td>
 				<button ng-click="removeField($index);">Remove</button>
 			</td>
 		</tr>
 		</table>
+		
 		<button ng-click="addField()">Add Field</button>
 		<button ng-click="save()" ng-if="id != null">Save</button>
 		

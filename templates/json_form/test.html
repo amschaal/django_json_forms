@@ -1,4 +1,15 @@
 {% extends 'admin/base.html'%}
+{% load crispy_forms_tags %}
+{% block extrahead %}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+{% endblock %}
 {% block content %}
 <form action="." method="POST">
 {% csrf_token %}
@@ -9,11 +20,9 @@
 <h1>{{message}}</h1>
 <form action="." method="POST" enctype="multipart/form-data">
 {% csrf_token %}
-<table>
-{{json_form}}
-</table>
+{% crispy json_form %}
 <input type="hidden" name="submitted" value="1"/>
 <input type="hidden" name="fields" value="{{fields}}"/>
-<button>Submit</button>
+<button class="btn">Submit</button>
 </form>
 {% endblock %}
