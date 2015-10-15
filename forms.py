@@ -117,7 +117,7 @@ class FieldHandler():
                 choices.append((c['value'],c['name']))
         return choices
     def create_field_for_text(self, field, options):
-        options['max_length'] = int(field.get("max_length", "20") )
+        options['max_length'] = int(field.get("max_length", "250") )
         return forms.CharField(**options)
     
     def create_field_for_file(self, field, options):
