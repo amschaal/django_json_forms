@@ -23,8 +23,8 @@ class JSONModelForm(forms.Form):
         self.fields = fh.formfields
         lh = LayoutHandler(self.json_form_model.fields)
         self.helper = FormHelper()
-        self.helper.layout = lh.layout
         self.helper.form_tag = False
+        self.helper.layout = lh.layout
     def create_response(self):
         if self.is_valid():
             if not hasattr(self, 'response'):
@@ -63,8 +63,9 @@ class JSONForm(forms.Form):
         self.fields = fh.formfields
         lh = LayoutHandler(fields)
         self.helper = FormHelper()
-        self.helper.layout = lh.layout
         self.helper.form_tag = False
+        self.helper.layout = lh.layout
+        
 class JSONFormModel_Form(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(JSONFormModel_Form, self).__init__(*args, **kwargs)
@@ -87,7 +88,6 @@ class LayoutHandler():
                     self.layout_items.append(HTML(field['html']))
                 else:
                     self.layout_items.append(field['name'])
-        print self.layout_items
         self.layout = Layout(*self.layout_items)
 
 class FieldHandler():
@@ -143,6 +143,11 @@ class FieldHandler():
     def create_field_for_checkbox(self, field, options):
         return forms.BooleanField(widget=forms.CheckboxInput, **options)
     
+    def create_field_for_multicheckbox(self, field, options):
+        options['choices'] = FieldHandler.curate_choices(field['choices'])
+        options['widget'] = forms.CheckboxSelectMultiple
+        return forms.MultipleChoiceField(  **options)
+
 def get_form(jstr):
     fields=json.loads(jstr)
     fh = FieldHandler(fields)
