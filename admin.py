@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.core.urlresolvers import reverse
-from models import JSONFormModel
-from forms import JSONFormModel_Form
+from django.urls import reverse
+from django_json_forms.models import JSONFormModel
+from django_json_forms.forms import JSONFormModel_Form
 from django.utils.html import format_html
 
 def form_actions(obj):

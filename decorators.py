@@ -1,4 +1,4 @@
-from models import Response, JSONFormModel
+from django_json_forms.models import Response, JSONFormModel
 from django.http import HttpResponseForbidden 
 
 from django.conf import settings

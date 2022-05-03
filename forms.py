@@ -4,12 +4,12 @@ from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUpload
 import json, os
 from datetime import datetime
 from django_json_forms.models import JSONFormModel
-from django.core.urlresolvers import reverse
 from django.utils.html import format_html
 from django.conf import settings
-from models import Response
+from django_json_forms.models import Response
 from crispy_forms.layout import HTML, Fieldset, Layout
 from crispy_forms.helper import FormHelper
+from django.urls.base import reverse
 UPLOAD_DIRECTORY = getattr(settings,'DJANGO_JSON_FORMS_UPLOAD_DIRECTORY')
 GET_UPLOAD_PATH = getattr(settings,'DJANGO_JSON_FORMS_GET_UPLOAD_PATH',False)
 from django.utils.module_loading import import_string
@@ -32,7 +32,7 @@ class JSONModelForm(forms.Form):
                 self.cleaned_data_with_files = self.cleaned_data.copy()
                 file_directory = os.path.join(UPLOAD_DIRECTORY,str(datetime.now().year),'%02d' % datetime.now().month,'%02d' % datetime.now().day, 'response_%d'%self.response.id)
                 os.makedirs(file_directory)
-                for key, value in self.cleaned_data.iteritems():
+                for key, value in self.cleaned_data.items():
                     if isinstance(value,(TemporaryUploadedFile,InMemoryUploadedFile)):
                         file_path = os.path.join(file_directory,value.name)
 #                         if GET_UPLOAD_PATH:
@@ -45,8 +45,7 @@ class JSONModelForm(forms.Form):
                         self.cleaned_data_with_files[key]= file_path
                 self.response.data = self.cleaned_data_with_files
                 self.response.save()
-                print 'response'
-                print self.response.data
+                print(self.response.data)
             return self.response
 
 class JSONForm(forms.Form):
@@ -82,8 +81,8 @@ class LayoutHandler():
         self.layout_items = []
 #         print fields
         for field in fields:
-            if field.has_key('type'):
-                print field['type']
+            if 'type' in field:
+#                 print(field['type'])
                 if field['type'] == 'layout_html':
                     self.layout_items.append(HTML(field['html']))
                 else:
@@ -94,7 +93,7 @@ class FieldHandler():
     def __init__(self, fields):
         self.formfields = {}
         for field in fields:
-            if field.has_key('type'):
+            if 'type' in field:
                 if hasattr(self, "create_field_for_"+field['type']):
                     options = self.get_options(field)
                     f = getattr(self, "create_field_for_"+field['type'] )(field, options)
@@ -109,11 +108,11 @@ class FieldHandler():
     def curate_choices(options):
         choices = []
         for c in options:
-            if c.has_key('value') and not c.has_key('name'):
+            if 'value' in c and not 'name' in c:
                 choices.append((c['value'],c['value']))
-            elif c.has_key('name') and not c.has_key('value'):
+            elif 'name' in c and not 'value' in c:
                 choices.append((c['name'],c['name']))
-            elif c.has_key('name') and c.has_key('value'):
+            elif 'name' in c and 'value' in c:
                 choices.append((c['value'],c['name']))
         return choices
     def create_field_for_text(self, field, options):

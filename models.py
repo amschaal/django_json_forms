@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 # from django import forms
 from jsonfield import JSONField
 from django.utils.html import format_html
@@ -14,11 +14,11 @@ class JSONFormModel(models.Model):
         return self.name
     def get_form(self,*args):
         from forms import JSONModelForm
-        print self.fields
+#         print self.fields
         return JSONModelForm(*args,JSONFormModel=self)
     
 class Response(models.Model):
-    form = models.ForeignKey(JSONFormModel,related_name='responses')
+    form = models.ForeignKey(JSONFormModel,related_name='responses', on_delete=models.CASCADE)
     fields = JSONField(null=False,blank=False)
     timestamp = models.DateTimeField(auto_now=True)
     data = JSONField(null=False,blank=False)
@@ -36,7 +36,7 @@ class Response(models.Model):
                     field['pretty_value'] = self.get_pretty_value(field)
         except:
             #@todo: stupid hack, fix this
-            print 'unable to generate labels and pretty values for response'
+            print('unable to generate labels and pretty values for response')
 #     def field_iterator(self):
 #         fields = self.fields.copy()
 #         for field in fields:

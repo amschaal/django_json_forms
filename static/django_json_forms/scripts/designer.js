@@ -1,4 +1,4 @@
-var DesignerApp = angular.module('DesignerApp', ['ui.tinymce'])
+var DesignerApp = angular.module('DesignerApp', [])
 .config(function($interpolateProvider) {
 	  $interpolateProvider.startSymbol('{[');
 	  $interpolateProvider.endSymbol(']}');

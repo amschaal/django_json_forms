@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.http import HttpResponse, HttpResponseForbidden
-from forms import JSONForm
-from models import JSONFormModel, Response as JSONFormResponse
+from django_json_forms.forms import JSONForm
+from django_json_forms.models import JSONFormModel, Response as JSONFormResponse
 import json
 from django.contrib.auth.decorators import user_passes_test
-from decorators import download_permission, form_permission
+from django_json_forms.decorators import download_permission, form_permission
+from django.urls.base import reverse
 
 def test(request):
     json_form = None
@@ -32,7 +32,6 @@ def designer(request):
 @form_permission()
 def form_designer(request,pk):
     json_form = JSONFormModel.objects.get(pk=pk)
-    print json_form.fields
     init = {'fields':json_form.fields,'id':json_form.id,'urls':{'update':reverse('update_form_fields',kwargs={"pk":pk})}}
     return render(request, 'json_form/designer.html', {'init':json.dumps(init),'json_form':json_form},context_instance=RequestContext(request))
 
@@ -57,7 +56,6 @@ def form(request,pk):
         form = json_form.get_form(request.POST,request.FILES)
         if form.is_valid():
             response = form.create_response()#JSONFormResponse.objects.create(form=json_form,data=form.cleaned_data_with_files)
-            print form.cleaned_data_with_files
             message = response.data
             return redirect('response',pk=response.id)
         else:
